@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>EfCore10LeftJoinDemo</RootNamespace>
+    <!-- The whole point of the demo is that the right side of a left join is
+         nullable, so the nullable warnings are errors here: a projection that
+         forgets it would not build. -->
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- The two probe folders are their own projects; the check script builds
+         and runs them. They must not be compiled into this one. -->
+    <Compile Remove="nullable-probe/**/*.cs" />
+    <Compile Remove="efcore9-probe/**/*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- SQLite executes the queries. The SQL Server provider is here only so
+         ToQueryString can print T-SQL; no server is contacted. -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.12" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.12" />
+  </ItemGroup>
+
+</Project>

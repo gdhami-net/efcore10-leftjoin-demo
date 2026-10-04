@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- .NET 10 (so Queryable.LeftJoin exists) with EF Core 9 (which has never
+         heard of it). The check script runs this and reads the exception, which
+         is how the post can say you need both halves. -->
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>EfCore10LeftJoinDemo.EfCore9Probe</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.20" />
+  </ItemGroup>
+
+</Project>

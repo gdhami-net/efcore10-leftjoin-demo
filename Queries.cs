@@ -29,6 +29,15 @@ internal static class Queries
             (c, o) => new Row(c.Name, o!.Code, (decimal?)o!.Total));
 
     /// <summary>
+    /// The shortest form when the model already links the two tables: walk the
+    /// navigation, no join clause and no keys. Older than .NET 10.
+    /// </summary>
+    public static IQueryable<Row> NavigationWay(ShopDb db) =>
+        from c in db.Customers
+        from o in c.Orders.DefaultIfEmpty()
+        select new Row(c.Name, o.Code, (decimal?)o.Total);
+
+    /// <summary>
     /// The same join, projecting the order entity itself instead of its columns.
     /// EF Core leaves the whole order null when the customer has none.
     /// </summary>

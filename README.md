@@ -41,6 +41,10 @@ PASS  SQL Server: both forms produce byte-identical SQL
 PASS  SQL Server: and that SQL is a LEFT JOIN
       SELECT [c].[Name], [o].[Code], [o].[Total]
 PASS  the query-syntax join and its method-syntax equivalent produce the same SQL
+PASS  walking the Orders navigation gives the same 5 rows
+      Ada/A-1/42.5 | Ada/A-2/7.0 | Brahim/null/null | Chen/C-1/19.99 | Dalia/null/null
+PASS  and its SQL is the same string as LeftJoin's
+      LEFT JOIN "Orders" AS "o" ON "c"."Id" = "o"."CustomerId"
 PASS  projecting the order entity gives null for the 2 customers with no orders
       Ada/A-1 | Ada/A-2 | Brahim/null | Chen/C-1 | Dalia/null
 PASS  the query-syntax form returns those same 2 nulls, with no nullable type to warn you
@@ -59,7 +63,7 @@ PASS  the same LeftJoin query under EF Core 9 throws 'could not be translated'
 ALL CHECKS PASSED
 ```
 
-That is 17 checks. The row lines read `Name/Code/Total`, with `null` printed
+That is 19 checks. The row lines read `Name/Code/Total`, with `null` printed
 where the value is missing.
 
 ## The two queries
@@ -119,6 +123,10 @@ provider to compile the query into its own dialect.
   operator exists there (it is a BCL method), but EF Core 9 has no translation
   for it, so the query builds and then throws
   `The LINQ expression ... could not be translated` at run time.
+- **A navigation is shorter than either of them.** `Customer` has an `Orders`
+  collection, so `from o in c.Orders.DefaultIfEmpty()` needs no join clause and
+  no keys. Its SQL comes out as the same string as `LeftJoin`'s. The hand-written
+  join is for tables your model does not link.
 - **Method syntax and query syntax agree.** `Queries.cs` also holds the explicit
   `GroupJoin(...).SelectMany(...)` spelling, and a check confirms it generates
   the same SQL as the `from ... select` form. Worth knowing before you conclude

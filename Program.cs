@@ -34,6 +34,7 @@ internal static class Program
         SameSql("SQLite", sqlite);
         SameSql("SQL Server", sqlserver);
         MethodSyntaxMatchesQuerySyntax(sqlite);
+        NavigationNeedsNoJoinAtAll(sqlite);
         TheWholeOrderComesBackNull(sqlite);
         PlainDecimalProjectionThrows(sqlite);
         RightJoinMirrorsLeftJoin(sqlite);
@@ -100,6 +101,19 @@ internal static class Program
             groupJoin == leftJoin ? First(leftJoin) : $"GroupJoin:\n{groupJoin}\n\nLeftJoin:\n{leftJoin}");
         Check($"{provider}: and that SQL is a LEFT JOIN",
             leftJoin.Contains("LEFT JOIN", StringComparison.Ordinal), First(leftJoin));
+    }
+
+    /// <summary>Walking the Orders navigation needs no join clause and no keys.</summary>
+    private static void NavigationNeedsNoJoinAtAll(ShopDb db)
+    {
+        var rows = Sorted(Queries.NavigationWay(db).ToList());
+        var sql = Queries.NavigationWay(db).ToQueryString();
+        Check("walking the Orders navigation gives the same 5 rows",
+            rows.SequenceEqual(Sorted(Queries.LeftJoinWay(db).ToList())), Show(rows));
+        var leftJoin = Queries.LeftJoinWay(db).ToQueryString();
+        Check("and its SQL is the same string as LeftJoin's",
+            sql == leftJoin && sql.Contains("LEFT JOIN", StringComparison.Ordinal),
+            sql == leftJoin ? OneLine(sql.Split('\n')[2]) : $"navigation:\n{sql}\n\nLeftJoin:\n{leftJoin}");
     }
 
     private static void MethodSyntaxMatchesQuerySyntax(ShopDb db)
@@ -203,6 +217,9 @@ internal static class Program
         Console.WriteLine();
         Console.WriteLine("-- RightJoin");
         Console.WriteLine(Queries.RightJoinWay(db).ToQueryString());
+        Console.WriteLine();
+        Console.WriteLine("-- walking the Orders navigation, no join clause");
+        Console.WriteLine(Queries.NavigationWay(db).ToQueryString());
         Console.WriteLine();
     }
 
